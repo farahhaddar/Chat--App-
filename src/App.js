@@ -158,8 +158,10 @@ class App extends Component {
            <div className="tddd">
             <td className="tdd">{msg.name}</td>
             <td className="td">
-              {typeof msg.text === "string" ? msg.text : ""} 
+              {typeof msg.text === "string" ? msg.text : ""}
+              <span className="d"> {msg.date}</span>
               </td> 
+              
               </div>
           </tr>
           
