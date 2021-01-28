@@ -5,10 +5,10 @@ import './App.css';
 
 
 class App extends Component {
-  
+
   state = {
-    isConnected:false,
-    id:null,
+    isConnected: false,
+    id: null,
     peeps: [],
     name: 0,
     msg: "",
@@ -16,15 +16,16 @@ class App extends Component {
     messages: [],
   }
   socket = null
-  
+
   // add =()=> {
   //   // var n1= prompt("enter the n1")*1;
   //   // var n2= prompt("enter the n2")*1;
   //   // var n3= prompt("enter the n3")*1;
   //   // var add = n1+n2+n3;
   //   // this.socket.emit("answer", add);
-   
+
   // }
+
 
   handleTextChange = (event) => {
     let name = document.getElementById("name");
@@ -33,42 +34,41 @@ class App extends Component {
         ...this.state.arr,
         name: name.value,
         id: this.state.id,
-        text: event.target.value,
+        text: event.target.value
       },
     });
+
   };
 
 
-
-  componentWillMount(){
+  componentWillMount() {
 
     this.socket = io('https://codi-server.herokuapp.com');
 
     this.socket.on("connect_error", (data) => {
       console.log("error");
-    }); 
+    });
 
     this.socket.on('connect', () => {
-      this.setState({isConnected:true})
+      this.setState({ isConnected: true })
     })
-     
-    this.socket.on('pong!',()=>{
+
+    this.socket.on('pong!', () => {
       console.log('the server answered!')
     })
-    this.socket.emit("whoami");
 
-    this.socket.on('pong!',(additionalStuff)=>{
+    this.socket.on('pong!', (additionalStuff) => {
       console.log('server answered!', additionalStuff)
     })
-    
-    this.socket.on('youare',(answer)=>{
-      this.setState({id:answer.id})
+
+    this.socket.on('youare', (answer) => {
+      this.setState({ id: answer.id })
     })
 
     this.socket.on('disconnect', () => {
-      this.setState({isConnected:false})
+      this.setState({ isConnected: false })
     })
-     
+
     this.socket.on("peeps", (socket) => {
       console.log(socket);
       this.setState({ peeps: socket });
@@ -81,99 +81,125 @@ class App extends Component {
       this.setState({ peeps: filteredItems });
     });
 
-      this.socket.on("new connection", (connection) => {
+    this.socket.on("new connection", (connection) => {
       this.setState({ peeps: [...this.state.peeps, connection] });
     });
-    
-     
+
+
     this.socket.on("room", (old_messages) => {
       this.setState({ messages: old_messages });
     });
-   
 
-    
-     this.socket.on('next',(message_from_server)=> {
-       console.log(message_from_server);
+
+
+    this.socket.on('next', (message_from_server) => {
+      console.log(message_from_server);
     })
-    
 
-   
+    this.socket.emit("whoami");
+
+
   }
 
-  componentWillUnmount(){
+  componentWillUnmount() {
     this.socket.close()
     this.socket = null
   }
 
-  
-    render() {
-      return (
+
+
+  // {/* <div> id: {this.state.id}</div> */}
+  // {/* <button onClick={()=>this.socket.emit('ping!')}>ping</button> */}
+
+  // {/* <button onClick={()=>this.socket.emit('whoami')}>Who am I?</button> */}
+
+  // {/* <button onClick={() => this.socket.emit("give me next")}>Next</button> */}
+
+  // {/* <button onClick={() => this.socket.emit("addition")}> add </button> */}
+
+  // {/* <button onClick={this.add}> num</button> */}
+
+
+  render() {
+    return (
       <div className="App">
 
-      
-        {/* <div> id: {this.state.id}</div> */}
-        {/* <button onClick={()=>this.socket.emit('ping!')}>ping</button> */}
-       
-        {/* <button onClick={()=>this.socket.emit('whoami')}>Who am I?</button> */}
+        <div className="title"> Chatting Room </div>
 
-        {/* <button onClick={() => this.socket.emit("give me next")}>Next</button> */}
 
-        {/* <button onClick={() => this.socket.emit("addition")}> add </button> */}
-        
-        {/* <button onClick={this.add}> num</button> */}
-        <div className="status">status: {this.state.isConnected ? 'connected' : 'disconnected'}</div>
-      
-        <div  className="title"> Chatting Room </div>
-
-      <div  className="body">
         <input
-        className="name"
-        id="name"
+          className="hide"
+          id="name"
           type="text"
           name="name"
           value="Farah Haddar"
           disabled
         />
-  <div   className="inpt"  style={{textAlign:"center", position:"fixed",marginTop:"500px"}}>
-        
-        <input
-        className="inp"
-          type="text"
-          name="msg"
-          placeholder="Send A Message"
-          onChange={this.handleTextChange}
-        />
-       
-   
-        <button className="butt" onClick={() => this.socket.emit("message",this.state.arr )}> Send</button>
+
+        <div className=" containor"  >
+          
+          <div className="head">
+            Messages
+           </div>
+
+          <div className="scroll" >
+                    <div className="status"> {this.state.isConnected ? 'connected' : 'disconnected'}</div>
+
+            {this.state.messages.map((msg) => (
+
+              <div className="msg"  >
+
+               <div className="name"> {msg.name}</div>
+               <div className="body"  >
+               <div className="text"> {typeof msg.text === "string" ? msg.text : ""}</div>
+               <div className="date">{msg.date}</div>
+              </div>
+              </div>
+
+            ))}
+
+          </div>
+
+        <div className="inpt">
+            <input
+              className="inp"
+              type="text"
+              name="msg"
+              placeholder="Send A Message"
+              onChange={this.handleTextChange}
+            />
+            <button className="butt" onClick={() => this.socket.emit("message", this.state.arr)}> Send </button>
+
+          </div> 
+
+
+
+
+
+
+
+
+
         </div>
 
-       {/* {this.state.peeps.map((user) => (
-          <li>{user}</li>
-        ))}  */}
 
-             {this.state.messages.map((msg) => (
-            
-            <tr > 
-           <div className="tddd">
-            <td className="tdd">{msg.name}</td>
-            <td className="td">
-              {typeof msg.text === "string" ? msg.text : ""}
-              <span className="d"> {msg.date}</span>
-              </td> 
-              
-              </div>
-          </tr>
-          
-            ))} 
-       
 
-       </div>
-</div>
+
+
+
+
+
+
+
+
+
+
+      </div>
+
 
     );
-    
-    }
+
+  }
 }
 
 export default App;
